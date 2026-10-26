@@ -125,15 +125,15 @@ tor_account() {
   fi
 }
 
-# true if the port is held by something that isn't our service
+# true if the port is held by something that isn't our own torrc
 port_taken() {
-  local port="$1" svc="$2" pids pid cmd taken=0
+  local port="$1" torrc="$2" pids pid cmd taken=0
   ss -ltn 2>/dev/null | grep -qE "[:.]${port}[[:space:]]" || return 1
   pids="$(ss -ltnp 2>/dev/null | grep -E "[:.]${port}[[:space:]]" | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u || true)"
   [[ -z $pids ]] && return 0
   for pid in $pids; do
     cmd="$(ps -p "$pid" -o args= 2>/dev/null || true)"
-    [[ $cmd == *"tor-egress-"* ]] || taken=1
+    [[ $cmd == *"$torrc"* ]] || taken=1
   done
   (( taken == 1 ))
 }
@@ -371,7 +371,7 @@ do_add() {
   say "adding node: country=$cc port=$port"
   systemctl stop "$svc" 2>/dev/null || true
 
-  if port_taken "$port" "$svc"; then
+  if port_taken "$port" "$(torrc_of "$cc")"; then
     die "port $port is used by something else, pick another one"
   fi
 
