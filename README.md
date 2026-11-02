@@ -128,6 +128,21 @@ address, always `127.0.0.1:<port>`.
 /var/log/egress-nodes/tor-egress-<cc>.log
 ```
 
+## web panel
+
+There is an optional web panel in `panel/`, stdlib python only, no pip.
+
+```bash
+sudo ENM_USER=admin ENM_PASS=secret python3 panel/server.py --port 8787
+```
+
+Then open `http://127.0.0.1:8787`. It shows one row per node
+(LOC / SERVICE / PORT / EGRESS-IP / CC / SPEED, with a mismatch flag
+when the exit is not where you asked) and test/restart buttons.
+
+It binds to 127.0.0.1 by default. Put it behind ssh or your own
+reverse proxy if you need remote access.
+
 ## honest limitations
 
 - tor is slow and not built for heavy proxy traffic
