@@ -147,6 +147,22 @@ def node_status(meta):
     }
 
 
+# fixed snapshot for README screenshots only. env-gated (ENM_DEMO=1),
+# so demo data can never leak into production responses.
+def demo_status():
+    return [
+        {"cc": "de", "service": "tor-egress-de", "active": True,
+         "port": "9053", "egress_ip": "185.220.70.4", "egress_cc": "DE",
+         "latency_ms": 842, "mismatch": False},
+        {"cc": "tr", "service": "tor-egress-tr", "active": True,
+         "port": "9054", "egress_ip": "91.108.42.17", "egress_cc": "RO",
+         "latency_ms": 1235, "mismatch": True},
+        {"cc": "nl", "service": "tor-egress-nl", "active": False,
+         "port": "9055", "egress_ip": "", "egress_cc": "",
+         "latency_ms": 0, "mismatch": False},
+    ]
+
+
 def run_mgr(action, cc):
     cc = re.sub(r"[^a-z]", "", (cc or "").lower())
     if len(cc) != 2 or action not in ("test", "restart"):
@@ -205,9 +221,12 @@ async function load(){
     const tr = document.createElement('tr');
     const mark = n.mismatch ? ' <span class="bad">&lt;-- MISMATCH (want ' + n.cc.toUpperCase() + ')</span>' : '';
     const st = n.active ? '<span class="ok">active</span>' : 'inactive';
+    const ip = n.egress_ip || '&mdash;';
+    const cc = n.egress_cc || '&mdash;';
+    const ms = n.latency_ms ? n.latency_ms.toLocaleString() + 'ms' : '&mdash;';
     tr.innerHTML = '<td>' + n.cc + '</td><td>' + st + '</td><td>' + n.port +
-      '</td><td>' + (n.egress_ip || '-') + '</td><td>' + (n.egress_cc || '-') +
-      '</td><td>' + n.latency_ms + 'ms' + mark + '</td>' +
+      '</td><td dir="ltr">' + ip + '</td><td>' + cc +
+      '</td><td dir="ltr">' + ms + mark + '</td>' +
       '<td><button onclick="act(\\'test\\',\\'' + n.cc + '\\')">test</button> ' +
       '<button onclick="act(\\'restart\\',\\'' + n.cc + '\\')">restart</button></td>';
     tb.appendChild(tr);
@@ -262,8 +281,11 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(401, '{"error":"login"}', "application/json")
                 return
             nodes = list_nodes()
-            with ThreadPoolExecutor(max_workers=8) as pool:
-                out = list(pool.map(node_status, nodes))
+            if os.environ.get("ENM_DEMO") == "1":
+                out = demo_status()
+            else:
+                with ThreadPoolExecutor(max_workers=8) as pool:
+                    out = list(pool.map(node_status, nodes))
             self._send(200, json.dumps({"nodes": out}), "application/json")
         else:
             self._send(404, "not found", "text/plain")

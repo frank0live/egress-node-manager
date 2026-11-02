@@ -6,6 +6,9 @@ country. I use it to feed country-based outbounds into Xray.
 It only creates local proxies on `127.0.0.1:<port>`. It does not touch
 Xray, 3x-ui, firewall rules or anything else.
 
+<p align="center"><img src="docs/panel.png" alt="web panel showing three egress nodes" width="100%"></p>
+<p align="center"><img src="docs/login.png" alt="web panel login page" width="60%"></p>
+
 ## quick start
 
 Needs root and a debian/ubuntu box.
