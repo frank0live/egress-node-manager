@@ -1,7 +1,19 @@
 # egress-node-manager
 
+[![Platform](https://img.shields.io/badge/Platform-Debian%20%7C%20Ubuntu-blue.svg)](#quick-start)
+[![CLI](https://img.shields.io/badge/CLI-Bash-green.svg)](#commands)
+[![Panel](https://img.shields.io/badge/Web%20Panel-Python%20(Zero--Dep)-yellow.svg)](#web-panel)
+[![Transport](https://img.shields.io/badge/Transport-Tor%20SOCKS5-purple.svg)](#how-it-works)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](#license)
+
 Small bash script that spins up local Tor SOCKS5 proxies, one per exit
 country. I use it to feed country-based outbounds into Xray.
+
+```text
+                             tor-egress-tr  127.0.0.1:9053 -> Turkey exit
+Xray / 3x-ui routing rules -> tor-egress-de  127.0.0.1:9054 -> Germany exit
+                             tor-egress-nl  127.0.0.1:9055 -> Netherlands exit
+```
 
 It only creates local proxies on `127.0.0.1:<port>`. It does not touch
 Xray, 3x-ui, firewall rules or anything else.
@@ -28,21 +40,18 @@ egress-node-manager menu
 
 ## commands
 
-| command              | what it does                              |
-| -------------------- | ----------------------------------------- |
-| `menu`               | interactive menu                          |
-| `add <cc> [port]`    | add a country node, port auto-picks       |
-| `list`               | show installed nodes                      |
-| `json <cc>`          | print xray outbound snippet               |
-| `logs <cc>`          | journal + tor log for a node              |
-| `test <cc>`          | run health check again                    |
-| `restart <cc>`       | restart for a fresh circuit               |
-| `delete <cc>`        | remove a node and its files               |
-| `upgrade`            | rewrite torrc files with current settings |
-| `clean-db`           | drop stale meta files                     |
-
-`add` also accepts `install` for muscle memory. `delete` accepts `remove`.
-`upgrade` accepts `fix`.
+| command           | alias     | what it does                              |
+| ----------------- | --------- | ----------------------------------------- |
+| `menu`            |           | interactive menu                          |
+| `add <cc> [port]` | `install` | add a country node, port auto-picks       |
+| `list`            |           | show installed nodes                      |
+| `json <cc>`       |           | print xray outbound snippet               |
+| `logs <cc>`       |           | journal + tor log for a node              |
+| `test <cc>`       |           | run health check again                    |
+| `restart <cc>`    |           | restart for a fresh circuit               |
+| `delete <cc>`     | `remove`  | remove a node and its files               |
+| `upgrade`         | `fix`     | rewrite torrc files with current settings |
+| `clean-db`        |           | drop stale meta files                     |
 
 ```bash
 egress-node-manager add tr 9053
